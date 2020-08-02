@@ -51,7 +51,6 @@ class Request {
           reject(err)
           connection.end()
         }))
-
       }
     )
   }
