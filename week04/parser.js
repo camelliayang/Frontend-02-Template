@@ -12,7 +12,6 @@ function emit(token){
     if(token.type === "text"){
         return
     }
-
     let top = stack[stack.length - 1]
 
     if(token.type == "startTag"){
