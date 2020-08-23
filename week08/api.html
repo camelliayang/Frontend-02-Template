@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All APIs</title>
+  </head>
+  <body>
+    <script>
+      /**
+       * chrome(mac), names长度为993
+       * safari, names长度为750
+       */
+      let names = Object.getOwnPropertyNames(window);
+
+      function filterOut(names, props) {
+        let set = new Set();
+        props.forEach((o) => set.add(o));
+        return names.filter((e) => !set.has(e));
+      }
+
+      // ECMA 262   chrome过滤剩下888   safari剩下699
+      {
+          let js = new Set();
+          let Objects = ["globalThis", "console","BigInt", "BigInt64Array", "BigUint64Array", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "Array", "Date", "RegExp", "Promise", "Proxy", "Map", "WeakMap", "Set", "WeakSet", "Function", "Boolean", "String", "Number", "Symbol", "Object", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "URIError", "ArrayBuffer", "SharedArrayBuffer", "DataView", "Float32Array", "Float64Array", "Int8Array", "Int16Array", "Int32Array", "Uint8Array", "Uint16Array", "Uint32Array", "Uint8ClampedArray", "Atomics", "JSON", "Math", "Reflect", "escape", "unescape"];
+          Objects.forEach(o => js.add(o));
+          names = names.filter(e =>!js.has(e));
+      }
+
+      //Subclass Node    chrome剩727   safari剩521   node的子节点
+      names = names.filter(e => {
+          try {
+              return !(window[e].prototype instanceof Node)
+          } catch (error) {
+              return true;
+          }
+      }).filter(e => e != "Node");
+
+      // Events  chrome剩623    safari剩434
+      names = names.filter(e => !e.match(/^on/));
+
+      // webkit private  chrome剩610 safari剩424
+      names = names.filter((e) => !e.match(/^webkit/));
+
+
+      // html标准window和whatwg的内容，都是HTML带来的API
+      // chrome剩554  safari剩373
+      {
+          let names = Object.getOwnPropertyNames(window)
+          let js = new Set();
+          let objects = ["BigInt", "BigInt64Array", "BigUint64Array", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "Array", "Date", "RegExp", "Promise", "Proxy", "Map", "WeakMap", "Set", "WeakSet", "Function", "Boolean", "String", "Number", "Symbol", "Object", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "URIError", "ArrayBuffer", "SharedArrayBuffer", "DataView", "Float32Array", "Float64Array", "Int8Array", "Int16Array", "Int32Array", "Uint8Array", "Uint16Array", "Uint32Array", "Uint8ClampedArray", "Atomics", "JSON", "Math", "Reflect", "escape", "unescape"];
+          objects.forEach(o => js.add(o));
+          names = names.filter(e => !js.has(e));
+
+          names = names.filter( e => {
+              try { 
+                  return !(window[e].prototype instanceof Node)
+              } catch(err) {
+                  return true;
+              }
+          }).filter( e => e != "Node")
+
+          let windowprops = new Set();
+          objects = ["window", "self", "document", "name", "location", "history", "customElements", "locationbar", "menubar", " personalbar", "scrollbars", "statusbar", "toolbar", "status", "close", "closed", "stop", "focus", " blur", "frames", "length", "top", "opener", "parent", "frameElement", "open", "navigator", "applicationCache", "alert", "confirm", "prompt", "print", "postMessage", "console"];
+          objects.forEach(o => windowprops.add(o));
+          names = names.filter(e => !windowprops.has(e));
+      }
+      // https://html.spec.whatwg.org
+      {
+        let interfaces = new Set();
+        objects = ["ApplicationCache", "AudioTrack", "AudioTrackList", "BarProp", "BeforeUnloadEvent", "BroadcastChannel", "CanvasGradient", "CanvasPattern", "CanvasRenderingContext2D", "CloseEvent", "CustomElementRegistry", "DOMStringList", "DOMStringMap", "DataTransfer", "DataTransferItem", "DataTransferItemList", "DedicatedWorkerGlobalScope", "Document", "DragEvent", "ErrorEvent", "EventSource", "External", "FormDataEvent", "HTMLAllCollection", "HashChangeEvent", "History", "ImageBitmap", "ImageBitmapRenderingContext", "ImageData", "Location", "MediaError", "MessageChannel", "MessageEvent", "MessagePort", "MimeType", "MimeTypeArray", "Navigator", "OffscreenCanvas", "OffscreenCanvasRenderingContext2D", "PageTransitionEvent", "Path2D", "Plugin", "PluginArray", "PopStateEvent", "PromiseRejectionEvent", "RadioNodeList", "SharedWorker", "SharedWorkerGlobalScope", "Storage", "StorageEvent", "TextMetrics", "TextTrack", "TextTrackCue", "TextTrackCueList", "TextTrackList", "TimeRanges", "TrackEvent", "ValidityState", "VideoTrack", "VideoTrackList", "WebSocket", "Window", "Worker", "WorkerGlobalScope", "WorkerLocation", "WorkerNavigator"];
+        objects.forEach(o => interfaces.add(o));
+
+        names = names.filter(e => !interfaces.has(e));
+      }
+
+      // Intl 来自ECMA402  chrome剩553   safari剩372  （也就是只过滤了一个？）
+      names = names.filter(e => e != "Intl");
+
+      // WebGL，Khronos的  chrome剩536  safari剩357
+      names = filterOut(names, ["WebGLContextEvent","WebGLObject", "WebGLBuffer", "WebGLFramebuffer", "WebGLProgram", "WebGLRenderbuffer", "WebGLShader", "WebGLTexture", "WebGLUniformLocation", "WebGLActiveInfo", "WebGLShaderPrecisionFormat", "WebGLRenderingContext","WebGLVertexArrayObject", "WebGLTransformFeedback", "WebGLSync", "WebGLSampler", "WebGLQuery", "WebGL2RenderingContext"]);
+      
+      // Web Audio API 属于W3C的标准 chrome剩504  safari剩335
+      names = filterOut(names, ["AudioContext", "AudioNode", "AnalyserNode", "AudioBuffer", "AudioBufferSourceNode", "AudioDestinationNode", "AudioParam", "AudioListener", "AudioWorklet", "AudioWorkletGlobalScope", "AudioWorkletNode", "AudioWorkletProcessor", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "MediaStreamAudioDestinationNode", "PannerNode", "PeriodicWave", "OscillatorNode", "StereoPannerNode", "WaveShaperNode", "ScriptProcessorNode", "AudioProcessingEvent", "AudioScheduledSourceNode", "AudioParamMap","BlobEvent"]);
+      
+      // https://encoding.spec.whatwg.org/#dom-textencoder 来自whatwg的encoding规范标准 chrome剩500  safari剩333
+      names = filterOut(names, ["TextDecoder", "TextEncoder", "TextDecoderStream", "TextEncoderStream"]);
+      
+      // https://wicg.github.io/BackgroundSync/spec/#sync-manager-interface 背景sync API
+      //chrome剩498  safari剩333 也是W3C社区的
+      names = filterOut(names, ["SyncManager", "PeriodicSyncManager"]);
+
+      // SVG chrome剩472  safari剩307
+      names = filterOut(names,["SVGUnitTypes", "SVGTransformList", "SVGTransform", "SVGStringList", "SVGRect", "SVGPreserveAspectRatio", "SVGPointList", "SVGPoint", "SVGNumberList", "SVGNumber", "SVGMatrix", "SVGLengthList", "SVGLength", "SVGAnimatedTransformList", "SVGAnimatedString", "SVGAnimatedRect", "SVGAnimatedPreserveAspectRatio", "SVGAnimatedNumberList", "SVGAnimatedNumber", "SVGAnimatedLengthList", "SVGAnimatedLength", "SVGAnimatedInteger", "SVGAnimatedEnumeration", "SVGAnimatedBoolean", "SVGAnimatedAngle", "SVGAngle"]);
+      
+      // WebXR Device API   chrome剩446  safari剩307,没有这个
+      {
+        names = filterOut(names,["XRFrame", "XRInputSource", "XRInputSourceArray", "XRInputSourceEvent", "XRInputSourcesChangeEvent", "XRPose", "XRReferenceSpace", "XRReferenceSpaceEvent", "XRRenderState", "XRRigidTransform", "XRSession", "XRSessionEvent", "XRSpace", "XRSystem", "XRView", "XRViewerPose", "XRViewport", "XRWebGLLayer", "XRHitTestResult", "XRHitTestSource", "XRRay", "XRTransientInputHitTestResult", "XRTransientInputHitTestSource" , "XRBoundedReferenceSpace","XRDOMOverlayState","XRLayer"]);
+      }
+
+      // StyleSheet   chrome剩442    safari剩305
+      {
+        names = filterOut(names,["StyleSheetList", "StyleSheet", "StylePropertyMapReadOnly", "StylePropertyMap"]);
+      }
+      
+      // web API chrome剩330  safari剩237
+      {
+        names = filterOut(names,["BeforeInstallPromptEvent", "BatteryManager", "XPathResult", "XPathExpression", "XPathEvaluator", "XMLSerializer", "XMLHttpRequestUpload", "XMLHttpRequestEventTarget", "XMLHttpRequest", "VisualViewport", "VTTCue", "URLSearchParams", "URL", "TreeWalker", "TransitionEvent", "TextEvent", "TaskAttributionTiming", "SubmitEvent", "StaticRange", "Selection", "SecurityPolicyViolationEvent", "Screen", "Response", "ResizeObserverEntry", "ResizeObserver", "Request", "ReportingObserver", "Range", "ProgressEvent", "PointerEvent", "PerformanceTiming", "PerformanceServerTiming", "PerformanceResourceTiming", "PerformancePaintTiming", "PerformanceObserverEntryList", "PerformanceObserver", "PerformanceNavigationTiming", "PerformanceNavigation", "PerformanceMeasure", "PerformanceMark", "PerformanceLongTaskTiming", "PerformanceEventTiming", "PerformanceEntry", "PerformanceElementTiming", "Performance", "NodeList", "NodeIterator", "NodeFilter", "NamedNodeMap", "MutationRecord", "MutationObserver", "MutationEvent", "MediaQueryListEvent", "MediaQueryList", "MediaList", "LayoutShift", "LargestContentfulPaint", "IntersectionObserverEntry", "IntersectionObserver", "IdleDeadline", "Headers", "HTMLOptionsCollection", "HTMLFormControlsCollection", "HTMLCollection", "FormData", "FontFaceSetLoadEvent", "FontFace", "FileReader", "FileList", "File", "EventTarget", "Event", "ElementInternals", "CustomEvent", "CountQueuingStrategy", "CompositionEvent", "ClipboardEvent", "ByteLengthQueuingStrategy", "Blob", "AnimationEvent", "AnimationEffect", "Animation","AbortSignal", "AbortController", "WebKitCSSMatrix", "WebKitMutationObserver","event","BackgroundFetchManager", "BackgroundFetchRecord", "BackgroundFetchRegistration","TrustedHTML", "TrustedScript", "TrustedScriptURL", "TrustedTypePolicy", "TrustedTypePolicyFactory", "UserActivation", "AnimationPlaybackEvent", "AnimationTimeline", "CSSAnimation", "CSSTransition", "performance", "PhotoCapabilities", "OfflineAudioContext", "OfflineAudioCompletionEvent", "NetworkInformation", "BaseAudioContext", "visualViewport", "indexedDB", "DocumentTimeline", "XSLTProcessor", "FederatedCredential", "RTCIceTransport"]);
+      }
+
+      // Web Cryptography API chrome剩320  safari剩234
+      {
+        names = filterOut(names,["Crypto","CryptoKey","PublicKeyCredential","AuthenticatorAssertionResponse","AuthenticatorAttestationResponse","AuthenticatorResponse","SubtleCrypto","PasswordCredential","Credential","CredentialsContainer"]);
+      }
+
+      // Web Bluetooth  chrome剩312  safari不变
+      {
+        names = filterOut(names,["Bluetooth", "BluetoothCharacteristicProperties", "BluetoothDevice", "BluetoothRemoteGATTCharacteristic", "BluetoothRemoteGATTDescriptor", "BluetoothRemoteGATTServer", "BluetoothRemoteGATTService", "XRBoundedReferenceSpace","BluetoothUUID"]);
+      }
+
+      // SourceBufferList  chrome剩309  safari剩231
+      names = filterOut(names, ["MediaSource", "SourceBuffer", "SourceBufferList"])
+
+      // WebRTC API  chrome剩290  safari剩219
+      names = filterOut(names,["RTCTrackEvent", "RTCStatsReport", "RTCSessionDescription", "RTCSctpTransport", "RTCRtpTransceiver", "RTCRtpSender", "RTCRtpReceiver", "RTCPeerConnectionIceEvent", "RTCPeerConnectionIceErrorEvent", "RTCPeerConnection", "RTCIceCandidate", "RTCErrorEvent", "RTCError", "RTCDtlsTransport", "RTCDataChannelEvent", "RTCDataChannel", "RTCDTMFToneChangeEvent", "RTCDTMFSender", "RTCCertificate"]);
+      
+      // MediaStream API chrome剩279 safari剩215
+      names = filterOut(names,["MediaStreamTrack","MediaStream","MediaStreamEvent","MediaStreamTrackEvent","MediaSettingsRange", "MediaRecorder", "MediaEncryptedEvent", "MediaCapabilities","ImageCapture","InputDeviceInfo","captureEvents"]);
+
+      // UIEvent API chrome剩267 safari剩207
+      names = filterOut(names,["InputEvent","InputDeviceCapabilities","focus","FocusEvent","blur", "MouseEvent","MouseEvent", "KeyframeEffect", "KeyboardEvent","WheelEvent",, "Keyboard", "KeyboardLayoutMap","UIEvent"])
+      
+      // Payment Request API chrome剩252  safari剩202
+      {
+        names = filterOut(names,["PaymentMethodChangeEvent", "PaymentInstruments", "PaymentManager", "PaymentRequestUpdateEvent", "PaymentAddress", "PaymentRequest", "PaymentResponse", "Presentation", "PresentationAvailability", "PresentationConnection", "PresentationConnectionAvailableEvent", "PresentationConnectionCloseEvent", "PresentationConnectionList", "PresentationReceiver", "PresentationRequest"]);
+      }
+
+      // Storagemanager  chrome剩246  safari剩197
+      {
+        names = filterOut(names,["StorageManager","sessionStorage", "localStorage","caches","Cache","CacheStorage"]);
+      }
+
+      // Service Workers chrome剩242  safari 194
+      { names = filterOut(names,["NavigationPreloadManager", "ServiceWorker", "ServiceWorkerContainer", "ServiceWorkerRegistration"]); }
+
+      // Generic Sensor API  chrome剩234 safari不变
+      { names = filterOut(names,["Sensor","SensorErrorEvent","Accelerometer", "OrientationSensor","RelativeOrientationSensor", "AbsoluteOrientationSensor","Gyroscope","LinearAccelerationSensor"]); }
+
+      // Web Speech API  chrome剩230 safari剩191
+      { names = filterOut(names,["SpeechSynthesisErrorEvent", "SpeechSynthesisEvent", "SpeechSynthesisUtterance", "speechSynthesis"]); }
+
+      // ReadableStream chrome剩223, safari剩190
+      { names = filterOut(names,["DecompressionStream", "ReadableStreamDefaultReader", "ReadableStream","CompressionStream","WritableStreamDefaultWriter", "WritableStream", "TransformStream"]); }
+
+      // MIDI chrome剩215 safari不变
+      names = filterOut(names,["MIDIAccess", "MIDIConnectionEvent", "MIDIInput", "MIDIInputMap", "MIDIMessageEvent", "MIDIOutput", "MIDIOutputMap", "MIDIPort"]);
+
+      // web USB  chrome剩202 safari不变
+      names = filterOut(names,[ "USB", "USBAlternateInterface", "USBConfiguration", "USBConnectionEvent", "USBDevice", "USBEndpoint", "USBInterface", "USBInTransferResult", "USBIsochronousInTransferPacket", "USBIsochronousInTransferResult", "USBIsochronousOutTransferPacket", "USBIsochronousOutTransferResult", "USBOutTransferResult"]);
+
+      // css chrome剩160 safari剩176
+      {
+        names = filterOut(names,["CSSVariableReferenceValue", "CSSUnparsedValue", "CSSUnitValue", "CSSTranslate", "CSSTransformValue", "CSSTransformComponent", "CSSSupportsRule", "CSSStyleValue", "CSSStyleSheet", "CSSStyleRule", "CSSStyleDeclaration", "CSSSkewY", "CSSSkewX", "CSSSkew"
+                              ,"CSSScale", "CSSRuleList", "CSSRule", "CSSRotate", "CSSPositionValue", "CSSPerspective", "CSSPageRule", "CSSNumericValue", "CSSNumericArray", "CSSNamespaceRule", "CSSMediaRule", "CSSMatrixComponent", "CSSMathValue", "CSSMathSum", "CSSMathProduct", "CSSMathNegate", "CSSMathMin", "CSSMathMax", "CSSMathInvert", "CSSKeywordValue", "CSSKeyframesRule", "CSSKeyframeRule", "CSSImportRule", "CSSImageValue", "CSSGroupingRule", "CSSFontFaceRule", "CSS", "CSSConditionRule"]);
+      }
+
+      // DOMTokenList  chrome剩146 safari剩163
+      { names = filterOut(names,["DOMTokenList","DOMRectReadOnly","DOMRectList","DOMRect","DOMQuad","DOMPointReadOnly","DOMPoint","DOMParser","DOMMatrixReadOnly","DOMMatrix","DOMImplementation","DOMException","CanvasCaptureMediaStreamTrack","DOMError"]); }
+
+      // Media Capture and Streams   chrome137 safari是159
+      { names = filterOut(names,["OverconstrainedError", "navigator","MediaDeviceInfo", "MediaDevices", "MediaKeyMessageEvent", "MediaKeys", "MediaKeySession", "MediaKeyStatusMap", "MediaKeySystemAccess"]); }
+
+      // Browser  chrome 135 safari不变
+      { names = filterOut(names,["Permissions", "PermissionStatus"]) }    
+
+      // Screen Wake Lock API chrome 133 safari不变
+      { names = filterOut(names,["WakeLock", "WakeLockSentinel"]) } 
+
+      // IDB API chrome剩122  safari 148
+      names = filterOut(names,["IDBVersionChangeEvent", "IDBTransaction", "IDBRequest", "IDBOpenDBRequest", "IDBObjectStore", "IDBKeyRange", "IDBIndex", "IDBFactory", "IDBDatabase", "IDBCursorWithValue", "IDBCursor"]);
+      
+      // Gamepad API chrome 118  safari 145
+      names = filterOut(names,[ "GamepadHapticActuator", "GamepadEvent", "Gamepad", "GamepadButton"]);
+      
+      // TouchEvent chrome 115  safari 不变
+      names = filterOut(names,[ "TouchList", "TouchEvent", "Touch"])
+      
+      // Clipboard API and events  chrome 113 safari 不变
+      { names = filterOut(names,["ClipboardItem","Clipboard"]); }
+
+      // DeviceOrientation Event Specification chrome 109 safari 不变
+      { names = filterOut(names,["DeviceMotionEvent", "DeviceMotionEventAcceleration", "DeviceMotionEventRotationRate", "DeviceOrientationEvent"]); }
+
+      // Push API chrome 105 safari不变
+      { names = filterOut(names,["PushManager", "PushSubscription", "PushSubscriptionOptions"]); }
+      
+      // https://w3c.github.io/mediasession/#the-mediametadata-interface  chrome 107 safari不变
+      { names = filterOut(names,["MediaMetadata", "MediaSession"]); }  
+      
+      // SVG chrome不变 safari 121
+      names = names.filter((e) => !e.match(/^SVG/));
+
+      // geolocation-api chrome 100 safari不变
+      names = filterOut(names,["GeolocationPositionError", "GeolocationPosition", "GeolocationCoordinates", "Geolocation"]);
+      
+      // Media Playback Quality chrome 99  safari不变
+      { names = filterOut(names,["VideoPlaybackQuality"]) }
+      
+      // Remote play back https://www.w3.org/TR/remote-playback/#messaging-between-the-local-and-remote-playback-devices
+      // Chrome 98 safari不变
+      { names = filterOut(names,["RemotePlayback"]) }
+
+      // Screen Orientation API chrome 97 safari不变
+      { names = filterOut(names,["ScreenOrientation"]) }
+
+      // Web Locks API chrome 95 safari不变
+      { names = filterOut(names,["Lock","LockManager"]) }
+
+      // Resize observer  https://www.w3.org/TR/resize-observer/  chrome 94  safari不变
+      { names = filterOut(names,["ResizeObserverSize"]) }
+
+      // Picture in Picture https://www.w3.org/TR/picture-in-picture/ chrome 92 safari不变
+      { names = filterOut(names,["EnterPictureInPictureEvent", "PictureInPictureWindow"]) }
+
+      // WindowOrWorkerGlobalScope  chrome 86 safari 116
+      { names = filterOut(names,["queueMicrotask","clearInterval", "setInterval", "setTimeout", "clearTimeout", "createImageBitmap"]) }
+
+      // Dom FragmentDirective chrome剩85 safari不变
+      { names = filterOut(names,["FragmentDirective"]) }
+
+      //Left over: most apis are from window which are not filtered out.
+      //"parent", "opener", "top", "length", "frames", "closed", "location", "self", "window", "document", "name", "customElements", "history", "locationbar", "menubar", "personalbar", "scrollbars", "statusbar", "toolbar", "status", "frameElement", "origin", "external", "screen", "innerWidth", "innerHeight", "scrollX", "pageXOffset", "scrollY", "pageYOffset", "screenX", "screenY", "outerWidth", "outerHeight", "devicePixelRatio", "clientInformation", "offscreenBuffering", "screenLeft", "screenTop", "defaultStatus", "defaultstatus", "styleMedia", "isSecureContext", "stop", "open", "alert", "confirm", "prompt", "print", "queueMicrotask", "requestAnimationFrame", "cancelAnimationFrame", "releaseEvents", "requestIdleCallback", "cancelIdleCallback", "getComputedStyle", "matchMedia", "moveTo", "moveBy", "resizeTo", "resizeBy", "scroll", "scrollTo", "scrollBy", "getSelection", "find", "fetch", "btoa", "atob", "setTimeout", "clearTimeout", "setInterval", "clearInterval", "createImageBitmap", "close", "postMessage", "crypto", "FinalizationRegistry", "WeakRef", "chrome", "WebAssembly", "FragmentDirective", "ApplicationCacheErrorEvent", "applicationCache", "FeaturePolicy", "LayoutShiftAttribution", "trustedTypes", "Notification", "openDatabase", "Worklet", "BarcodeDetector", "filterOut"
+      console.log(names.length);
+      
+
+      
+      
+    </script>
+  </body>
+</html>
