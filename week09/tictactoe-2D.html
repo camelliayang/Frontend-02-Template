@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <style>
+       .cell{
+        width:100px;
+        height: 100px;
+        background-color: #ffc0cb;
+          display: inline-block; 
+          border:1px solid #000000;
+        vertical-align: middle;
+
+        line-height: 100px;
+        text-align: center;
+        font-size: 50px;;
+       }
+
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <script>
+        /*
+        棋盘：3x3方格
+        双方分别持有叉和圈两种棋子
+        交替落子, 先连3子直线的获胜
+        */
+        let pattern = [
+            [0, 2, 0],
+            [0, 1, 0],
+            [0, 0, 0]
+        ]
+        let color = 1;
+
+        function show(){
+            let board = document.getElementById("board");
+
+            board.innerHTML = "";
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.innerText = 
+                        pattern[i][j] == 2 ? "X": 
+                         (pattern[i][j] == 1 ? "O": "");
+                    cell.addEventListener("click",() => move(j, i));
+                    
+                    board.appendChild(cell);
+                }
+                //换行可以加br 或者给board一个固定宽度实现
+                board.appendChild(document.createElement("br"));
+            }
+        }
+
+        function move(x, y){
+            pattern[y][x] = color;
+            let win = false;
+            if (check(pattern, color)){
+                alert(color == 2 ? "X is winner!" : "O is winner!");
+                win = true;
+            }
+            color = 3 - color;
+            show();
+            if (!win && willWin(pattern, color)){
+              console.log(color == 2 ? "X will win!" : "O will win!");
+            }
+        }
+
+        function check(pattern, color){
+        // 判断同一行是不是一样的
+            for (let i = 0; i < 3; i++) {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[i][j] !== color){
+                        win = false;
+                    }
+                }
+                if (win)
+                    return true;
+            }
+
+            // 判断同一列是不是一样的
+            for (let i = 0; i < 3; i++) {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[j][i] !== color){
+                        win = false;
+                    }
+                }
+                if (win)
+                    return true;
+            }
+
+            // 斜
+            {
+                let win = true;
+                for (let i = 0; i < 3; i++) {
+                    if (pattern[i][i] !== color){
+                        win = false;
+                    }
+                }
+                if (win)
+                    return true;
+            }
+
+            {
+                let win = true;
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[j][2 - j] !== color){
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;
+            }
+
+        }
+        
+        // 要模拟然后填上，才能检查是不是win，怕填上原来的样子被打乱了，所以要clone一个
+        function clone(pattern){
+            return JSON.parse(JSON.stringify(pattern));
+        }
+        function willWin(pattern, color) {
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[i][j])
+                        continue;
+                    let tmp = clone(pattern);
+                    tmp[i][j] = color;
+                    if (check(tmp, color)){
+                        return [i, j];
+                    }
+                }
+            }
+            return null;
+        }
+
+        /*
+        输-1 和局0 赢1
+        */
+        function bestChoice(pattern, color){
+            let p = willWin(pattern, color);
+            if (p){
+                return{
+                    point: p,
+                    result: 1
+                };
+            }
+
+            let result = -2;
+            let point = null;
+
+            for (let i = 0; i < 3; i++){
+                for (let j = 0; j < 3; j++){
+                  if(pattern[i][j])
+                      continue;
+                  let tmp = clone(pattern);
+                  tmp[i][j] = color;
+                  let r = bestChoice(tmp, 3 - color).result;//看下对方
+
+                  if(-r > result){
+                      result = -r;
+                      point = [j, i];
+                  }
+                  if (result === 1) { //胜负剪枝
+                    break;
+                  }
+                }
+            };
+            return{
+                point: point,
+                result: point ? result : 0  //没有point就是和棋
+            };
+        }
+        show(pattern);
+        console.log(bestChoice(pattern,color));
+    </script>
+</body>
+</html>
