@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trie</title>
+</head>
+
+<body>
+    <script>
+        let $ = Symbol("$");
+        class Trie {
+            constructor() {
+                this.root = Object.create(null); // 避免Object.prototype上面的一些污染
+            }
+
+            insert(word) {
+                let node = this.root;
+                for (let c of word) {
+                    if (!node[c]) {
+                        node[c] = Object.create(null);// 子树不存在，创建子树
+                    }
+                    node = node[c];
+                }
+
+                if (!($ in node)) { //截止符$，对类似ab和abc重复字符串的处理
+                    node[$] = 0;
+                }
+                node[$]++;
+            }
+
+            most() {
+                let max = 0;
+                let wordList = [];
+                let maxWord = null;
+                let visit = (node, word) => {  
+                    if (node[$] && node[$] >= max) { //找到截止符
+                        maxWord = word;
+                        max = node[$];
+                        wordList.push({
+                            word: word,
+                            max: node[$]
+                        });
+                    }
+                    for (let p in node) {
+                        visit(node[p], word + p)
+                    }
+                }
+                visit(this.root, "");
+                console.log(maxWord, max);
+                return wordList;
+            }
+        }
+
+        let trie = new Trie();
+        function randomWord(length) {
+            var s = "";
+            for (let i = 0; i < length; i++) {
+                s += String.fromCharCode(Math.random() * 26 + "a".charCodeAt(0));
+            }
+            return s;
+        }
+        for (let i = 0; i < 100000; i++) {
+            trie.insert(randomWord(4));
+        }
+        console.log(trie);
+    </script>
+</body>
+
+</html>
