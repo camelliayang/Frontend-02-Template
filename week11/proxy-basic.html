@@ -1,0 +1,13 @@
+<script>
+    let ob = {
+        a: 1,
+        b: 2
+    };
+
+    let po = new Proxy(ob, {
+        set(obj, prop, val) {
+            console.log(obj, prop, val);
+        }
+        } // config对象，包含对此对象做的hooks
+    ); // ob收到的是proxy被代理的对象
+</script>

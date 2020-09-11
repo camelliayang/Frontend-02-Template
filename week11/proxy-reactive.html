@@ -1,0 +1,35 @@
+<script>
+  let callbacks = [];
+  let ob = {
+      a: 1,
+      b: 2
+  };
+
+  let po = reactive(ob);
+
+  effect(() => {
+      console.log(po.a);
+  })
+
+  
+
+  function effect(callback) {
+      callbacks.push(callback);
+  }
+// 不算是完整的，但是能够代理或监听所有改变object属性的行为， 除非把proxy上面的方法都去实现了
+  function reactive(object) {
+      return new Proxy(ob, {
+          set(obj, prop, val) {
+              obj[prop] = val;
+              for (let cb of callbacks) {
+                  cb();
+              }
+              return obj[prop];
+          },
+          get(obj, prop) {
+              console.log(obj, prop);
+              return obj[prop];
+          }
+      })
+  }
+</script>
