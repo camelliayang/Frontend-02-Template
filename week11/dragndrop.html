@@ -1,0 +1,59 @@
+<div id="container">文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 
+</div>
+<div id="dragable" style="display:inline-block;width:100px;height:100px;background-color: pink;"></div>
+<script>
+    let dragable = document.getElementById("dragable");
+    let baseX = 0, baseY = 0;
+    dragable.addEventListener("mousedown", function(event) {
+        let startX = event.clientX, startY = event.clientY;
+        // 这两个函数要写在里面，而且要在document监听，因为如果鼠标滑的快了，离开dragable区域，会发生拖断
+        let up = event => {
+            baseX = baseX + event.clientX - startX;
+            baseY = baseY + event.clientY - startY;
+            document.removeEventListener("mousemove", move)
+            document.removeEventListener("mouseup", up)
+        }
+        let move = event => {
+            let range = getNearestRange(event.clientX, event.clientY);
+            range.insertNode(dragable);
+            dragable.style.transform = `translate(${baseX + event.clientX - startX}px, ${baseY + event.clientY - startY}px)`
+        }
+
+        document.addEventListener("mousemove", move)
+        document.addEventListener("mouseup", up)
+    })
+
+    // 用range找一下能插入的空隙
+    let ranges = []; 
+    let container = document.getElementById("container");
+    for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+        let range = document.createRange();
+        range.setStart(container.childNodes[0], i);
+        range.setEnd(container.childNodes[0], i);
+        ranges.push(range);
+    }
+
+    function getNearestRange(x, y) {
+        let min = Infinity;
+        let nearest = null;
+
+        for (let range of ranges) {
+            let rect = range.getBoundingClientRect(); // CSSOM
+            let distance = (rect.x - x) ** 2 + (rect.y - y) ** 2; // 开不开根号不改变大小关系所以就算了
+            if (distance < min) {
+                nearest = range;
+                min = distance;
+            }
+        }
+        return nearest;
+    }
+
+    document.addEventListener("selectstart", event => event.preventDefault());
+</script>
