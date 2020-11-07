@@ -19,9 +19,11 @@ module.exports = class extends Generator {
       "name": answer.name,
       "version": "1.0.0",
       "description": "",
-      "main": "generator-vue/app/index.js",
+      "main": "generators/app/index.js",
       "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "webpack",
+        "test": "mocha --require @babel/register",
+        "coverage": "nyc mocha"
       },
       "author": "camelliayang",
       "license": "ISC",
@@ -31,14 +33,16 @@ module.exports = class extends Generator {
 
     // Extend or create package.json file in destination path
     this.fs.extendJSON(this.destinationPath('package.json'), pkgJson);
-    this.npmInstall(["vue-loader", "webpack", "copy-webpack-plugin", "vue-template-compiler", "vue-style-loader", "css-loader"], { 'save-dev': true });
-    this.npmInstall(["vue"], { 'save-dev': false });
+    this.npmInstall(["vue-loader", "babel-plugin-istanbul", "mocha", "nyc", 
+    "@istanbuljs/nyc-config-babel", "@babel/core", "@babel/register", 
+    "@babel/preset-env", "webpack", "webpack-cli", "copy-webpack-plugin", "vue-template-compiler", 
+    "vue-style-loader", "css-loader"], { 'save-dev': true });
   }
   
   copyFiles() {
     this.fs.copyTpl(
-      this.templatePath('HelloWorld.vue'),
-      this.destinationPath('src/HelloWorld.vue'),
+      this.templatePath('sample-test.js'),
+      this.destinationPath('test/sample-test.js'),
       {}
     );
     this.fs.copyTpl(
@@ -52,9 +56,19 @@ module.exports = class extends Generator {
       {}
     );
     this.fs.copyTpl(
+      this.templatePath('.babelrc'),
+      this.destinationPath('.babelrc'),
+      {}
+    );
+    this.fs.copyTpl(
       this.templatePath('index.html'),
       this.destinationPath('src/index.html'),
       { title: answer.name }
+    );
+    this.fs.copyTpl(
+      this.templatePath('.nycrc'),
+      this.destinationPath('.nycrc'),
+      {}
     );
   }
 };
